@@ -1,15 +1,21 @@
 package com.example;
 
+
 public class Conta {
-    private static int totalContas = 0; // variável de classe (compartilhada)
+    private static int totalContas = 0;
     private final String titular;
-    protected double saldo; // variável de instância
+    protected double saldo;
 
     public Conta(String titular, double saldoInicial) {
-        // TODO: validar titular != null/blank e saldoInicial >= 0
+        if (titular == null || titular.isBlank()) {
+            throw new IllegalArgumentException("Titular inválido");
+        }
+        if (saldoInicial < 0) {
+            throw new IllegalArgumentException("Saldo inicial não pode ser negativo");
+        }
         this.titular = titular;
         this.saldo = saldoInicial;
-        // TODO: incrementar contador totalContas
+        totalContas++;
     }
 
     public static int getTotalContas() {
@@ -25,25 +31,27 @@ public class Conta {
     }
 
     public void depositar(double valor) {
-        // TODO: validar valor > 0
+        if (valor <= 0) throw new IllegalArgumentException("Valor de depósito deve ser > 0");
         this.saldo += valor;
     }
 
     public boolean levantar(double valor) {
-        // TODO: validar valor > 0 e saldo suficiente
-        // Atualizar saldo e devolver true/false conforme sucesso
-        return false;
+        if (valor <= 0) return false;
+        if (valor > saldo) return false;
+        saldo -= valor;
+        return true;
     }
 
     public boolean transferir(Conta destino, double valor) {
-        // TODO: reusar levantar/depositar; retornar true/false
+        if (destino == null) return false;
+        if (levantar(valor)) {
+            destino.depositar(valor);
+            return true;
+        }
         return false;
     }
 
-    /** Comportamento mensal a ser especializado nas subclasses. */
-    public void atualizarMensal() {
-        // por omissão, não faz nada (pode ser override)
-    }
+    public void atualizarMensal() { /* default: nada */ }
 
     @Override
     public String toString() {
